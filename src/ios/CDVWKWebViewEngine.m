@@ -753,6 +753,26 @@
         }
     }
 
+    for (NSString* pluginName in vc.pluginObjects) {
+        CDVPlugin* plugin = [vc.pluginObjects objectForKey:pluginName];
+        SEL selector = NSSelectorFromString(@"shouldOverrideRequest:navigationType:");
+        if ([plugin respondsToSelector:selector]) {
+            int navType = (int)navigationAction.navigationType;
+            if (WKNavigationTypeOther == navigationAction.navigationType) {
+                #ifdef __CORDOVA_6_0_0
+                    navType = -1;
+                #else
+                    navType = 5;
+                #endif
+            }
+
+            BOOL shouldOverrideRequest = (((BOOL (*)(id, SEL, id, int))objc_msgSend)(plugin, selector, navigationAction.request, navType));
+
+            anyPluginsResponded = anyPluginsResponded || shouldOverrideRequest;
+            shouldAllowRequest = shouldAllowRequest || !shouldOverrideRequest;
+        }
+    }
+
     if (!anyPluginsResponded) {
         /*
          * Handle all other types of urls (tel:, sms:), and requests to load a url in the main webview.
