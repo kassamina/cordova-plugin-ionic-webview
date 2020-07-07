@@ -769,7 +769,7 @@
             BOOL shouldOverrideRequest = (((BOOL (*)(id, SEL, id, int))objc_msgSend)(plugin, selector, navigationAction.request, navType));
 
             anyPluginsResponded = anyPluginsResponded || shouldOverrideRequest;
-            shouldAllowRequest = shouldAllowRequest || !shouldOverrideRequest;
+            shouldAllowRequest = shouldAllowRequest && !shouldOverrideRequest;
         }
     }
 
